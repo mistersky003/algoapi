@@ -58,13 +58,17 @@ router.get('/isValidAddress/:address', async (req, res) => {
     if (req.params.address) {
         if (algosdk.isValidAddress(req.params.address)) {
             try {
-                const token = {
-                    'X-API-Key': keys.getKey()
-                }
-                const algodClient = new algosdk.Algodv2(token, baseServer, port);
-                let accountInfo = await algodClient.accountInformation(req.params.address).do();
+                let balance = await axios.get('https://indexer.testnet.algoexplorerapi.io/v2/accounts/' + account.addr).then(
+                        (response) => {
+                            //let count = (response.data.account.amount/1000000); 
+                            return response.data.account.amount;
+                        },
+                        (error) => {
+                            return 0;
+                        }
+                    );
                 let min = 0.000001;
-                if (accountInfo.amount == 0) {
+                if (balance == 0) {
                     min = 0.1;
                 }
                 res.status(200).send({status: 200, valid: true, minAmountForSend: min});
