@@ -82,6 +82,7 @@ router.get('/isValidAddress/:address', async (req, res) => {
 /* Balance */
 router.get('/getBalance/:address', (req, res) => {
     if (req.params.address) {
+        if (algosdk.isValidAddress(req.params.address)) {
         let resp = {status: 200, balance_algo_rounded: 0, balance_algo_full: 0, balance_usd: 0};
         axios.get('https://indexer.testnet.algoexplorerapi.io/v2/accounts/' + req.params.address).then(
             (response) => {
@@ -113,8 +114,10 @@ router.get('/getBalance/:address', (req, res) => {
                 res.status(200).send(resp);
             }
         );
+        } else {
+            res.status(400).send({status: 400, message: "Invalid address"});
+        }
     } else {
-        res.status(400).send({status: 400, message: "Bad Request"});
     }
 });
 
