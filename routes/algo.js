@@ -58,7 +58,7 @@ router.get('/isValidAddress/:address', async (req, res) => {
     if (req.params.address) {
         if (algosdk.isValidAddress(req.params.address)) {
             try {
-                let balance = await axios.get('https://indexer.testnet.algoexplorerapi.io/v2/accounts/' + account.addr).then(
+                let balance = await axios.get('https://indexer.testnet.algoexplorerapi.io/v2/accounts/' + req.params.address).then(
                         (response) => {
                             //let count = (response.data.account.amount/1000000); 
                             return response.data.account.amount;
@@ -163,6 +163,7 @@ router.post('/transactions', (req, res) => {
 
 router.get('/fee', async (req, res) => {
     try {
+        /*
         const token = {
             'X-API-Key': keys.getKey()
         }
@@ -170,7 +171,17 @@ router.get('/fee', async (req, res) => {
         let params = await algodClient.getTransactionParams().do();
         params.fee = algosdk.ALGORAND_MIN_TX_FEE;
         params.flatFee = true;
-        res.status(200).send({status: 200, fee: params.fee});
+        */
+        let fee = await axios.get('https://node.algoexplorerapi.io/v2/transactions/params').then(
+            (response) => {
+                //let count = (response.data.account.amount/1000000); 
+                return response.data['min-fee']/1000000;
+            },
+            (error) => {
+                return 0.1;
+            }
+        );
+        res.status(200).send({status: 200, fee: fee});
     } catch (err) {
         res.status(500).send({status: 500, message: err.message});
     }
