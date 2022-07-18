@@ -38,7 +38,7 @@ router.get('/algo', (req, res) => {
 });
 
 /* Generate Phrase */ 
-router.post('/generatePhrase', (req, res) => {
+router.post('/generateAddress', (req, res) => {
     if (req.body.seed_phrase) {
         try {  
             const account = algosdk.mnemonicToSecretKey(req.body.seed_phrase);
