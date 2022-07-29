@@ -17,11 +17,9 @@ router.get('/algo', (req, res) => {
     let data = {status: 200, usd: "", btc: ""};
     axios.get('https://price.algoexplorerapi.io/price/algo-usd').then(
         (response) => {
-            console.log(response.data.price);
             data.usd = response.data.price
             axios.get('https://price.algoexplorerapi.io/price/algo-btc').then(
                 (response) => {
-                    console.log(response.data.price);
                     data.btc = response.data.price
                     data.status = 200
                     res.status(200).send(data);
@@ -42,10 +40,8 @@ router.post('/generateAddress', (req, res) => {
     if (req.body.seed_phrase) {
         try {  
             const account = algosdk.mnemonicToSecretKey(req.body.seed_phrase);
-            console.log(account.addr);
             res.status(200).send({status: 200, address: account.addr});
         } catch (err) {
-            console.log("err", err);
             res.status(500).send({status: 500, massege: err.message});
         }
     } else {
