@@ -5,7 +5,7 @@ const router = express.Router()
 const axios = require('axios').default;
 const algosdk = require('algosdk');
 
-const baseServer = 'https://testnet-algorand.api.purestake.io/ps2'
+const baseServer = 'https://mainnet-algorand.api.purestake.io/ps2'
 const port = '';
 
 router.get('/info', (req, res) => {
@@ -58,7 +58,7 @@ router.get('/isValidAddress/:address', async (req, res) => {
     if (req.params.address) {
         if (algosdk.isValidAddress(req.params.address)) {
             try {
-                let balance = await axios.get('https://indexer.testnet.algoexplorerapi.io/v2/accounts/' + req.params.address).then(
+                let balance = await axios.get('https://algoindexer.algoexplorerapi.io/v2/accounts/' + req.params.address).then(
                         (response) => {
                             //let count = (response.data.account.amount/1000000); 
                             return response.data.account.amount;
@@ -88,7 +88,7 @@ router.get('/getBalance/:address', (req, res) => {
     if (req.params.address) {
         if (algosdk.isValidAddress(req.params.address)) {
         let resp = {status: 200, balance_algo_rounded: 0, balance_algo_full: 0, balance_usd: 0};
-        axios.get('https://indexer.testnet.algoexplorerapi.io/v2/accounts/' + req.params.address).then(
+        axios.get('https://algoindexer.algoexplorerapi.io/v2/accounts/' + req.params.address).then(
             (response) => {
                 let count = (response.data.account.amount/1000000).toString();
                 resp.balance_algo_full = count;
@@ -128,7 +128,7 @@ router.get('/getBalance/:address', (req, res) => {
 /* getTransactions */ 
 router.post('/transactions', (req, res) => {
     if (req.body.address) {
-        let url = 'https://algoindexer.testnet.algoexplorerapi.io/v2/transactions?address=' + req.body.address;
+        let url = 'https://algoindexer.algoexplorerapi.io/v2/transactions?address=' + req.body.address;
         
         if (req.body.limit) {
             url += '&limit=' + req.body.limit;
@@ -147,7 +147,7 @@ router.post('/transactions', (req, res) => {
                 for (let i=0; i<transactionSource.length; i++) {
                     let amountsource = (transactionSource[i]['payment-transaction']['amount'] / 1000000).toString();
                     let amount = amountsource;
-                    let moreUrl = 'https://testnet.algoexplorer.io/tx/' + transactionSource[i].id;
+                    let moreUrl = 'https://algoexplorer.io/tx/' + transactionSource[i].id;
                     transactionsArray.push({taxId: transactionSource[i].id, amount: amount, sender: transactionSource[i].sender, receiver: transactionSource[i]['payment-transaction']['receiver'], more: moreUrl});
                 }
                 res.status(200).send({status: 200, next: response.data['next-token'], transactions: transactionsArray});
@@ -163,22 +163,13 @@ router.post('/transactions', (req, res) => {
 
 router.get('/fee', async (req, res) => {
     try {
-        /*
-        const token = {
-            'X-API-Key': keys.getKey()
-        }
-        const algodClient = new algosdk.Algodv2(token, baseServer, port);
-        let params = await algodClient.getTransactionParams().do();
-        params.fee = algosdk.ALGORAND_MIN_TX_FEE;
-        params.flatFee = true;
-        */
         let fee = await axios.get('https://node.algoexplorerapi.io/v2/transactions/params').then(
             (response) => {
                 //let count = (response.data.account.amount/1000000); 
                 return response.data['min-fee']/1000000;
             },
             (error) => {
-                return 0.1;
+                return 0.001;
             }
         );
         res.status(200).send({status: 200, fee: fee});
@@ -206,7 +197,7 @@ router.post('/send', async (req, res) => {
                 }
                 if (req.body.amount >= minAmount) {
 
-                let balance = await axios.get('https://indexer.testnet.algoexplorerapi.io/v2/accounts/' + account.addr).then(
+                let balance = await axios.get('https://algoindexer.algoexplorerapi.io/v2/accounts/' + account.addr).then(
                         (response) => {
                             //let count = (response.data.account.amount/1000000); 
                             return response.data.account.amount;
